@@ -17,14 +17,17 @@ def get_points(plydata):
 
 if __name__ == '__main__':
 
-    point_arrays = []
-    for name in os.listdir('data/bunny/data'):
-        if name.endswith('.ply'):
-            point_arrays.append(
-                get_points(PlyData.read(os.path.join('data/bunny/data', name)))
-            )
-
-    total_data = np.vstack(point_arrays)
+    # point_arrays = []
+    # for name in os.listdir('data/bunny/data'):
+    #     if name.endswith('.ply'):
+    #         plydata = PlyData.read(os.path.join('data/bunny/data', name))
+    #         import pdb; pdb.set_trace()
+    #         point_arrays.append(
+    #             get_points(plydata)
+    #         )
+    #
+    # total_data = np.vstack(point_arrays)
+    total_data = get_points(PlyData.read('data/bunny.ply'))
 
 
     point_matrix_sampled = total_data[
