@@ -1,0 +1,16 @@
+name: p2mpy
+channels:
+    - https://conda.anaconda.org/menpo
+dependencies:
+    - python
+    - numpy
+    - scipy
+    - numba
+    - h5py
+    - matplotlib
+    - opencv
+    - pip:
+        - Cython
+        - scikit-image
+        - plyfile
+        - MeshPy
