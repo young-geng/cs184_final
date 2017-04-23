@@ -1,0 +1,3 @@
+from plyfile import PlyData, PlyElement
+
+plydata = PlyData.read('bunny/data/bun000.ply')
