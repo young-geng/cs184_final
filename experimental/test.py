@@ -30,7 +30,7 @@ def get_vertex_normals(plydata, vertices=None):
     B = vertices[faces[:, 1], :]
     C = vertices[faces[:, 2], :]
 
-    normals = np.cross(A - B, A - C)
+    normals = -np.cross(A - B, A - C)
     normals = normals / np.linalg.norm(normals, axis=1, keepdims=True)
 
     vertex_normals[faces[:, 0], :] += normals
@@ -79,14 +79,14 @@ if __name__ == '__main__':
         point_matrix_sampled[:, 0],
         point_matrix_sampled[:, 2],
         point_matrix_sampled[:, 1],
-        c='red'
+        c='blue'
     )
 
     ax.scatter(
         increased[:, 0],
         increased[:, 2],
         increased[:, 1],
-        c='blue'
+        c='red'
     )
 
     plt.show()
