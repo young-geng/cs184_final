@@ -37,7 +37,10 @@ def get_vertex_normals(plydata, vertices=None):
     vertex_normals[faces[:, 1], :] += normals
     vertex_normals[faces[:, 2], :] += normals
 
-    return vertex_normals / np.linalg.norm(vertex_normals, axis=1, keepdims=True)
+    norms = np.linalg.norm(vertex_normals, axis=1, keepdims=True)
+    norms[norms == 0] = 1
+
+    return vertex_normals / norms
 
 
 
