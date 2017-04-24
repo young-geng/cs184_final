@@ -4,6 +4,8 @@ from plyfile import PlyData, PlyElement
 
 from sklearn.neighbors import KDTree
 
+from collada import *
+
 
 class VertexNeighbors(object):
 
