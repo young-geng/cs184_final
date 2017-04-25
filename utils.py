@@ -7,15 +7,36 @@ from sklearn.neighbors import KDTree
 from collada import *
 
 
-class VertexNeighbors(object):
+class VertexSet(object):
 
-    def __init__(self, vertices):
-        self.kdtree = KDTree(vertices, leaf_size=30, metric='euclidean')
+    def __init__(self, vertices, normals):
+        assert vertices.shape == normals.shape
+        self._vertices = vertices
+        self._normals = normals
+        pass
 
-    def query(self, vertices, k):
-        if len(vertices.shape) == 1:
-            vertices = vertices.reshape(1, -1)
-        return self.kdtree.query(vertices, k)
+    def neighbor_search(self, vertices, k):
+        pass
+
+    def radius_search(self, r):
+        pass
+
+    def __len__(self):
+        return self.vertices.shape[0]
+
+    @property
+    def vertices(self):
+        return self._vertices
+
+    @property
+    def normals(self):
+        return self._normals
+
+    def __getitem__(self, index):
+        return self.vertices[index]
+
+    def __iter__(self):
+        return iter(self.vertices)
 
 
 def get_vertices(plydata):
