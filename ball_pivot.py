@@ -14,19 +14,19 @@ def ball_compatible(p, q, s, r, vertex_set):
     nb = vertex_set.normals[q]
     nc = vertex_set.normals[s]
 
-
-    sq = lambda x: x ** 2
-
     a = np.linalg.norm(B - C)
     b = np.linalg.norm(A - C)
     c = np.linalg.norm(A - B)
 
-    rc2 = (sq(a) * sq(b) * sq(c)) / (a + b + c) / (b + c - a) / (c + a - b) / (a + b - c)
+    rc2 = (
+        (np.square(a) * np.square(b) * np.square(c))
+        / (a + b + c) / (b + c - a) / (c + a - b) / (a + b - c)
+    )
 
     H_bary = np.array([
-        sq(a) * (sq(b) + sq(c) - sq(a)),
-        sq(b) * (sq(c) + sq(a) - sq(b)),
-        sq(c) * (sq(a) + sq(b) - sq(c))
+        np.square(a) * (np.square(b) + np.square(c) - np.square(a)),
+        np.square(b) * (np.square(c) + np.square(a) - np.square(b)),
+        np.square(c) * (np.square(a) + np.square(b) - np.square(c))
     ])
 
     H_bary = H_bary / np.sum(H_bary)
@@ -36,10 +36,10 @@ def ball_compatible(p, q, s, r, vertex_set):
     if np.dot(n, na) + np.dot(n, nb) + np.dot(n, nc) < 0:
         n = - n
 
-    if sq(r) - rc2 <= 0:
+    if np.square(r) - rc2 <= 0:
         return False
 
-    O = H + np.sqrt(sq(r) - rc2) * n
+    O = H + np.sqrt(np.square(r) - rc2) * n
 
     return len(vertex_set.radius_search(O, np.linalg.norm(O - A))[0]) <= 3
 
