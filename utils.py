@@ -2,20 +2,51 @@ import numpy as np
 
 from plyfile import PlyData, PlyElement
 
-from sklearn.neighbors import KDTree
+import pyflann
 
-from collada import *
+import collada
 
 
-class VertexNeighbors(object):
+class VertexSet(object):
 
-    def __init__(self, vertices):
-        self.kdtree = KDTree(vertices, leaf_size=30, metric='euclidean')
+    def __init__(self, vertices, normals):
+        assert vertices.shape == normals.shape
+        self._vertices = vertices
+        self._normals = normals
 
-    def query(self, vertices, k):
-        if len(vertices.shape) == 1:
-            vertices = vertices.reshape(1, -1)
-        return self.kdtree.query(vertices, k)
+        self.flann = pyflann.FLANN()
+        self.flann_index = self.flann.build_index(
+            vertices, algorithm="kdtree", target_precision=1, checks=32
+        )
+
+    def neighbor_search(self, p, k, max_results=32):
+        return self.flann.nn_index(p, k, checks=max_results)
+
+    def radius_search(self, p, r, max_results=32):
+        return self.flann.nn_radius(p, r, checks=max_results)
+
+    def __len__(self):
+        return self.vertices.shape[0]
+
+    @property
+    def vertices(self):
+        return self._vertices
+
+    @property
+    def normals(self):
+        return self._normals
+
+    def __getitem__(self, index):
+        return self.vertices[index]
+
+    def __iter__(self):
+        return iter(self.vertices)
+
+
+def build_vertex_set_ply(plydata):
+    normals = get_vertex_normals(plydata)
+    vertices = get_vertices(plydata)
+    return VertexSet(vertices, normals)
 
 
 def get_vertices(plydata):
@@ -64,21 +95,21 @@ def write_collada(vertices, normals, triangle_indices, fname):
     assert len(triangle_indices.shape) == 2 and triangle_indices.shape[1] == 3
 
 
-    mesh = Collada()
-    effect = material.Effect("effect0", [], "phong", diffuse=(1,0,0), specular=(0,1,0))
-    mat = material.Material("material0", "mymaterial", effect)
+    mesh = collada.Collada()
+    effect = collada.material.Effect("effect0", [], "phong", diffuse=(1,0,0), specular=(0,1,0))
+    mat = collada.material.Material("material0", "mymaterial", effect)
     mesh.effects.append(effect)
     mesh.materials.append(mat)
 
     vert_floats = vertices.flatten()
     normal_floats = normals.flatten()
 
-    vert_src = source.FloatSource("cubeverts-array", np.array(vert_floats), ('X', 'Y', 'Z'))
-    normal_src = source.FloatSource("cubenormals-array", np.array(normal_floats), ('X', 'Y', 'Z'))
+    vert_src = collada.source.FloatSource("cubeverts-array", np.array(vert_floats), ('X', 'Y', 'Z'))
+    normal_src = collada.source.FloatSource("cubenormals-array", np.array(normal_floats), ('X', 'Y', 'Z'))
 
-    geom = geometry.Geometry(mesh, "geometry0", "mycube", [vert_src, normal_src])
+    geom = collada.geometry.Geometry(mesh, "geometry0", "mycube", [vert_src, normal_src])
 
-    input_list = source.InputList()
+    input_list = collada.source.InputList()
     input_list.addInput(0, 'VERTEX', "#cubeverts-array")
     input_list.addInput(1, 'NORMAL', "#cubenormals-array")
 
@@ -89,11 +120,11 @@ def write_collada(vertices, normals, triangle_indices, fname):
     geom.primitives.append(triset)
     mesh.geometries.append(geom)
 
-    matnode = scene.MaterialNode("materialref", mat, inputs=[])
-    geomnode = scene.GeometryNode(geom, [matnode])
-    node = scene.Node("node0", children=[geomnode])
+    matnode = collada.scene.MaterialNode("materialref", mat, inputs=[])
+    geomnode = collada.scene.GeometryNode(geom, [matnode])
+    node = collada.scene.Node("node0", children=[geomnode])
 
-    myscene = scene.Scene("myscene", [node])
+    myscene = collada.scene.Scene("myscene", [node])
     mesh.scenes.append(myscene)
     mesh.scene = myscene
     mesh.write(fname)

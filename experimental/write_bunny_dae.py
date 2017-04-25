@@ -1,7 +1,6 @@
 import numpy as np
 
-from collada import *
-
+import collada
 
 from plyfile import PlyData, PlyElement
 
@@ -65,21 +64,21 @@ def write_collada(vertices, normals, triangle_indices, fname):
     assert len(triangle_indices.shape) == 2 and triangle_indices.shape[1] == 3
 
 
-    mesh = Collada()
-    effect = material.Effect("effect0", [], "phong", diffuse=(1,0,0), specular=(0,1,0))
-    mat = material.Material("material0", "mymaterial", effect)
+    mesh = collada.Collada()
+    effect = collada.material.Effect("effect0", [], "phong", diffuse=(1,0,0), specular=(0,1,0))
+    mat = collada.material.Material("material0", "mymaterial", effect)
     mesh.effects.append(effect)
     mesh.materials.append(mat)
 
     vert_floats = vertices.flatten()
     normal_floats = normals.flatten()
 
-    vert_src = source.FloatSource("cubeverts-array", np.array(vert_floats), ('X', 'Y', 'Z'))
-    normal_src = source.FloatSource("cubenormals-array", np.array(normal_floats), ('X', 'Y', 'Z'))
+    vert_src = collada.source.FloatSource("cubeverts-array", np.array(vert_floats), ('X', 'Y', 'Z'))
+    normal_src = collada.source.FloatSource("cubenormals-array", np.array(normal_floats), ('X', 'Y', 'Z'))
 
-    geom = geometry.Geometry(mesh, "geometry0", "mycube", [vert_src, normal_src])
+    geom = collada.geometry.Geometry(mesh, "geometry0", "mycube", [vert_src, normal_src])
 
-    input_list = source.InputList()
+    input_list = collada.source.InputList()
     input_list.addInput(0, 'VERTEX', "#cubeverts-array")
     input_list.addInput(1, 'NORMAL', "#cubenormals-array")
 
@@ -90,11 +89,11 @@ def write_collada(vertices, normals, triangle_indices, fname):
     geom.primitives.append(triset)
     mesh.geometries.append(geom)
 
-    matnode = scene.MaterialNode("materialref", mat, inputs=[])
-    geomnode = scene.GeometryNode(geom, [matnode])
-    node = scene.Node("node0", children=[geomnode])
+    matnode = collada.scene.MaterialNode("materialref", mat, inputs=[])
+    geomnode = collada.scene.GeometryNode(geom, [matnode])
+    node = collada.scene.Node("node0", children=[geomnode])
 
-    myscene = scene.Scene("myscene", [node])
+    myscene = collada.scene.Scene("myscene", [node])
     mesh.scenes.append(myscene)
     mesh.scene = myscene
     mesh.write(fname)
