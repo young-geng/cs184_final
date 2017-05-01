@@ -10,8 +10,11 @@ dependencies:
     - matplotlib
     - scikit-learn
     - opencv
+    - flann=1.8.4
     - pip:
         - Cython
         - scikit-image
         - plyfile
         - MeshPy
+        - pyflann
+        - pycollada
