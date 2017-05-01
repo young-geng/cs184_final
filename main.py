@@ -19,5 +19,5 @@ if __name__ == '__main__':
     # vs = VertexSet(vertices[sample_indices, :], normals[sample_indices, :])
     vs = build_vertex_set_ply(plydata)
 
-    mesh = pivot_ball(vs, np.sqrt(2)/2)
+    mesh = pivot_ball(vs, 1)
     write_collada(vs.vertices, vs.normals, np.array(mesh.faces.keys()), 'temp/cube2.dae')

@@ -23,7 +23,7 @@ class VertexSet(object):
         return self.flann.nn_index(p, k, checks=max_results)
 
     def radius_search(self, p, r, max_results=32):
-        return self.flann.nn_radius(p, r, checks=max_results)
+        return self.flann.nn_radius(p, r*r, checks=max_results)
 
     def __len__(self):
         return self.vertices.shape[0]
