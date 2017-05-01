@@ -46,8 +46,19 @@ def get_vertex_normals(plydata, vertices=None):
 
 if __name__ == '__main__':
 
+    # point_arrays = []
+    # for name in os.listdir('data/bunny/data'):
+    #     if name.endswith('.ply'):
+    #         plydata = PlyData.read(os.path.join('data/bunny/data', name))
+    #         import pdb; pdb.set_trace()
+    #         point_arrays.append(
+    #             get_vertices(plydata)
+    #         )
+    #
+    # total_data = np.vstack(point_arrays)
     plydata = PlyData.read('data/bunny.ply')
     normals = get_vertex_normals(plydata)
+    # import pdb; pdb.set_trace()
     total_data = get_vertices(plydata)
 
     sample_indices = np.random.randint(0, total_data.shape[0], 1000)
