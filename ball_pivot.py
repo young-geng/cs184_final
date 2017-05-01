@@ -97,3 +97,43 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
             candidate = v
             theta_min = theta
     return candidate
+
+
+def pivot_ball(vertex_set, radius):
+    s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
+    mesh = Mesh()
+    mesh.add_vertex(s0, s1, s2)
+    mesh.add_edge(s0, s1, s1, s2, s0, s2)
+    mesh.add_face(s0, s1, s2)
+
+    edge_front = [
+        sorted_tuple(s0, s1),
+        sorted_tuple(s1, s2),
+        sorted_tuple(s0, s2)
+    ]
+
+    while len(edge_front) > 0:
+        i, j = edge_front.pop()
+        if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[(i, j)]) == 2:
+            continue
+
+        v = find_candidate(i, j, vertex_set, radius, mesh, edge_front)
+
+        if v is None:
+            mesh.set_boundary(i, j)
+            continue
+
+        mesh.add_vertex(v)
+        mesh.add_edge(i, v, j, v)
+        mesh.add_face(i, j, v)
+
+        es = sorted_tuple(i, v)
+        et = sorted_tuple(j, v)
+
+        if len(mesh.faces_of_edge[es]) != 2:
+            edge_front.append(es)
+
+        if len(mesh.faces_of_edge[et]) != 2:
+            edge_front.append(et)
+
+    return mesh

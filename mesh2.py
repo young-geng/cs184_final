@@ -25,45 +25,55 @@ class Mesh(object):
         self._faces_of_vertex = {}
         self._faces_of_edge = {}
 
-    def add_vertex(self, i):
-        assert i not in self.vertices
-        self.vertices[i] = None
-        self.edges_of_vertex[i] = []
-        self.faces_of_vertex[i] = []
+    def add_vertex(self, *args):
+        for i in args:
+            if i in self.vertices:
+                continue
+            self.vertices[i] = None
+            self.edges_of_vertex[i] = []
+            self.faces_of_vertex[i] = []
 
-    def add_edge(self, i, j, boundary=False):
-        t = sorted_tuple(i, j)
+    def add_edge(self, *args):
+        while len(args) > 0:
+            i = args.pop(0)
+            j = args.pop(0)
 
-        assert i in self.vertices and j in self.vertices
-        assert is_unique(i, j)
-        assert t not in self.edges
+            t = sorted_tuple(i, j)
 
-        self.edges[t] = None
-        self.edges_of_vertex[i].append(t)
-        self.edges_of_vertex[j].append(t)
-        self.faces_of_edge[t] = []
+            assert i in self.vertices and j in self.vertices
+            assert is_unique(i, j)
 
-        if boundary:
-            self.boundary_edges[t] = None
+            if t in self.edges:
+                continue
 
-    def add_face(self, i, j, k):
-        t = sorted_tuple(i, j, k)
+            self.edges[t] = None
+            self.edges_of_vertex[i].append(t)
+            self.edges_of_vertex[j].append(t)
+            self.faces_of_edge[t] = []
 
-        assert i in self.vertices and j in self.vertices and k in self.vertices
-        assert is_unique(i, j, k)
-        for edge in edges_of_faces(i, j, k):
-            assert edge in self.edges
+    def add_face(self, *args):
+        while len(args) > 0:
+            i = args.pop(0)
+            j = args.pop(0)
+            k = args.pop(0)
+            t = sorted_tuple(i, j, k)
 
-        assert t not in self.faces
+            assert i in self.vertices and j in self.vertices and k in self.vertices
+            assert is_unique(i, j, k)
+            for edge in edges_of_faces(i, j, k):
+                assert edge in self.edges
 
-        self.faces[t] = None
+            if t in self.faces:
+                continue
 
-        self.faces_of_vertex[i].append(t)
-        self.faces_of_vertex[j].append(t)
-        self.faces_of_vertex[k].append(t)
+            self.faces[t] = None
 
-        for edge in edges_of_faces(i, j, k):
-            self.faces_of_edge[edge].append(t)
+            self.faces_of_vertex[i].append(t)
+            self.faces_of_vertex[j].append(t)
+            self.faces_of_vertex[k].append(t)
+
+            for edge in edges_of_faces(i, j, k):
+                self.faces_of_edge[edge].append(t)
 
     def is_edge(self, i, j):
         return sorted_tuple(i, j) in self.edges
