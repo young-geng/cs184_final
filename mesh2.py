@@ -2,11 +2,11 @@ import numpy as np
 
 
 def sorted_tuple(*args):
-    return tuple(sorted(*args))
+    return tuple(sorted(args))
 
 def edges_of_faces(i, j, k):
     for t in [(i, j), (j, k), (i, k)]:
-        yield sorted_tuple(t)
+        yield sorted_tuple(*t)
 
 def is_unique(*args):
     return len(args) == len(set(args))
@@ -26,6 +26,7 @@ class Mesh(object):
         self._faces_of_edge = {}
 
     def add_vertex(self, *args):
+        args = list(args)
         for i in args:
             if i in self.vertices:
                 continue
@@ -34,6 +35,7 @@ class Mesh(object):
             self.faces_of_vertex[i] = []
 
     def add_edge(self, *args):
+        args = list(args)
         while len(args) > 0:
             i = args.pop(0)
             j = args.pop(0)
@@ -52,6 +54,7 @@ class Mesh(object):
             self.faces_of_edge[t] = []
 
     def add_face(self, *args):
+        args = list(args)
         while len(args) > 0:
             i = args.pop(0)
             j = args.pop(0)
@@ -64,6 +67,7 @@ class Mesh(object):
                 assert edge in self.edges
 
             if t in self.faces:
+                raise ValueError('Face already in mesh')
                 continue
 
             self.faces[t] = None
@@ -85,11 +89,10 @@ class Mesh(object):
         return i in self.vertices
 
     def is_inner_vertex(self, i):
-        if len(faces_of_vertex[i]) == 0:
+        if len(self.faces_of_vertex[i]) == 0:
             return False
-        for edge in edges_of_vertex[i]:
-            p, q = edge
-            if self.is_boundary(edge) or len(self.faces_of_edge(p, q)) >= 2:
+        for edge in self.edges_of_vertex[i]:
+            if self.is_boundary(*edge):
                 return False
         return True
 

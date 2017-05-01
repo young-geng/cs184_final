@@ -2,6 +2,8 @@ import numpy as np
 
 from utils import *
 
+from mesh2 import *
+
 FLOAT_EPS = np.finfo(np.float32).eps
 
 def ball_compatible(p, q, s, r, vertex_set):
@@ -9,6 +11,12 @@ def ball_compatible(p, q, s, r, vertex_set):
     A = vertex_set[p]
     B = vertex_set[q]
     C = vertex_set[s]
+
+    if np.linalg.norm(A - B) < np.finfo(float).eps \
+       or np.linalg.norm(A - C) < np.finfo(float).eps \
+       or np.linalg.norm(B - C) < np.finfo(float).eps:
+
+       return None
 
     na = vertex_set.normals[p]
     nb = vertex_set.normals[q]
@@ -37,11 +45,11 @@ def ball_compatible(p, q, s, r, vertex_set):
         n = - n
 
     if np.square(r) - rc2 <= 0:
-        return False
+        return None
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    if len(vertex_set.radius_search(O, np.linalg.norm(O - A))[0]) <= 3:
+    if len(vertex_set.radius_search(O, np.linalg.norm(O - A) - FLOAT_EPS)[0]) == 0:
         return O
     else:
         return None
@@ -62,12 +70,12 @@ def seed_triangle(radius, vertex_set):
                 q = neighbor_indices[j]
                 s = neighbor_indices[k]
 
-                if ball_compatible(p, q, s, radius, vertex_set):
-                    return np.array([p, q, s], dtype=np.int32)
+                if ball_compatible(p, q, s, radius, vertex_set) is not None:
+                    return (int(p), int(q), int(s))
     return None
 
 def is_inner_vertex(i, mesh, edge_front):
-    if not mesh.is_inner_vertex(i):
+    if not mesh.is_vertex(i) or not mesh.is_inner_vertex(i):
         return False
     for e in mesh.edges_of_vertex[i]:
         if e in edge_front:
@@ -87,11 +95,15 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
     idx, dis = vertex_set.radius_search(m, new_radius)
     candidate = None
     for v in idx:
+        if v == i or v == j:
+            continue
+        if mesh.is_face(v, i, j):
+            continue
         if is_inner_vertex(v, mesh, edge_front):
             continue
-        if not ball_compatible(v, i, j, radius, vertex_set):
-            continue
         o = ball_compatible(v, i, j, radius, vertex_set)
+        if o is None:
+            continue
         theta = np.arccos(np.dot(m - O, m - o) / np.linalg.norm(m - O) / np.linalg.norm(m - o))
         if theta < theta_min:
             candidate = v
@@ -101,6 +113,7 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
 
 def pivot_ball(vertex_set, radius):
     s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
+    print s0, s1, s2
     mesh = Mesh()
     mesh.add_vertex(s0, s1, s2)
     mesh.add_edge(s0, s1, s1, s2, s0, s2)
@@ -111,6 +124,8 @@ def pivot_ball(vertex_set, radius):
         sorted_tuple(s1, s2),
         sorted_tuple(s0, s2)
     ]
+
+    total_faces = 0
 
     while len(edge_front) > 0:
         i, j = edge_front.pop()
@@ -123,9 +138,13 @@ def pivot_ball(vertex_set, radius):
             mesh.set_boundary(i, j)
             continue
 
+        # import pdb; pdb.set_trace()
+
         mesh.add_vertex(v)
         mesh.add_edge(i, v, j, v)
         mesh.add_face(i, j, v)
+        total_faces += 1
+        print 'Faces: {}, [{}, {}, {}]'.format(total_faces, i, j, v)
 
         es = sorted_tuple(i, v)
         et = sorted_tuple(j, v)
