@@ -88,7 +88,8 @@ class Mesh(object):
         if len(faces_of_vertex[i]) == 0:
             return False
         for edge in edges_of_vertex[i]:
-            if self.is_boundary(edge):
+            p, q = edge
+            if self.is_boundary(edge) or len(self.faces_of_edge(p, q)) >= 2:
                 return False
         return True
 
