@@ -73,7 +73,6 @@ class Edge:
         v1.bind(self)
         v2.bind(self)
         self.faces = []
-        self.bound = False
 
     def another(self, vertex):
         if vertex == self.v[0]:
@@ -98,9 +97,6 @@ class Edge:
                 return self.faces[1]
             else:
                 return self.faces[0]
-
-    def boundary(self):
-        self.bound = True
 
 class Face:
 
