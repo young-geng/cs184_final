@@ -65,7 +65,7 @@ class Vertex:
                 if not f in visited:
                     yield f
                     visited.append(f)
-        
+
 class Edge:
 
     def __init__(self, v1, v2):
@@ -73,6 +73,7 @@ class Edge:
         v1.bind(self)
         v2.bind(self)
         self.faces = []
+        self.is_boundary = False
 
     def another(self, vertex):
         if vertex == self.v[0]:
