@@ -62,4 +62,3 @@ def seed_triangle(radius, vertex_set):
                 if ball_compatible(p, q, s, radius, vertex_set):
                     return np.array([p, q, s], dtype=np.int32)
     return None
-

@@ -74,14 +74,6 @@ class Mesh(object):
     def is_vertex(self, i):
         return i in self.vertices
 
-    def is_inner_vertex(self, i):
-        if len(faces_of_vertex[i]) == 0:
-            return False
-        for edge in edges_of_vertex[i]:
-            if self.is_boundary(edge):
-                return False
-        return True
-
     def is_boundary(self, i, j):
         return sorted_tuple(i, j) in self.boundary_edges
 

@@ -41,7 +41,10 @@ def ball_compatible(p, q, s, r, vertex_set):
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    return len(vertex_set.radius_search(O, np.linalg.norm(O - A))[0]) <= 3
+    if len(vertex_set.radius_search(O, np.linalg.norm(O - A))[0]) <= 3:
+        return O
+    else:
+        return None
 
 
 def seed_triangle(radius, vertex_set):
@@ -62,3 +65,35 @@ def seed_triangle(radius, vertex_set):
                 if ball_compatible(p, q, s, radius, vertex_set):
                     return np.array([p, q, s], dtype=np.int32)
     return None
+
+def is_inner_vertex(i, mesh, edge_front):
+    if not mesh.is_inner_vertex(i):
+        return False
+    for e in mesh.edges_of_vertex[i]:
+        if e in edge_front:
+            return False
+    return True
+
+def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
+
+    t = sorted_tuple(i, j)
+    p, q, s = mesh.faces_of_edge[t][0]
+    O = ball_compatible(p, q, s, radius, vertex_set)
+    A = vertex_set[i]
+    B = vertex_set[j]
+    m = (A + B) / 2
+    new_radius = np.linalg.norm(m - O) + radius
+    theta_min = 2*np.pi
+    idx, dis = vertex_set.radius_search(m, new_radius)
+    candidate = None
+    for v in idx:
+        if is_inner_vertex(v, mesh, edge_front):
+            continue
+        if not ball_compatible(v, i, j, radius, vertex_set):
+            continue
+        o = ball_compatible(v, i, j, radius, vertex_set)
+        theta = np.arccos(np.dot(m - O, m - o) / np.linalg.norm(m - O) / np.linalg.norm(m - o))
+        if theta < theta_min:
+            candidate = v
+            theta_min = theta
+    return candidate
