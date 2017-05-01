@@ -19,6 +19,7 @@ class Mesh(object):
         self._vertices = {}
         self._edges = {}
         self._faces = {}
+        self._boundary_edges = {}
 
         self._edges_of_vertex = {}
         self._faces_of_vertex = {}
@@ -30,7 +31,7 @@ class Mesh(object):
         self.edges_of_vertex[i] = []
         self.faces_of_vertex[i] = []
 
-    def add_edge(self, i, j):
+    def add_edge(self, i, j, boundary=False):
         t = sorted_tuple(i, j)
 
         assert i in self.vertices and j in self.vertices
@@ -41,6 +42,9 @@ class Mesh(object):
         self.edges_of_vertex[i].append(t)
         self.edges_of_vertex[j].append(t)
         self.faces_of_edge[t] = []
+
+        if boundary:
+            self.boundary_edges[t] = None
 
     def add_face(self, i, j, k):
         t = sorted_tuple(i, j, k)
@@ -70,6 +74,16 @@ class Mesh(object):
     def is_vertex(self, i):
         return i in self.vertices
 
+    def is_boundary(self, i, j):
+        return sorted_tuple(i, j) in self.boundary_edges
+
+    def set_boundary(self, i, j):
+        t = sorted_tuple(i, j)
+        assert i in self.vertices and j in self.vertices
+        assert is_unique(i, j)
+        assert t in self.edges
+        self.boundary_edges[t] = None
+
     @property
     def vertices(self):
         return self._vertices
@@ -93,3 +107,7 @@ class Mesh(object):
     @property
     def faces_of_edge(self):
         return self._faces_of_edge
+
+    @property
+    def boundary_edges(self):
+        return self._boundary_edges
