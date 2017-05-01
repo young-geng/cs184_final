@@ -37,6 +37,9 @@ def ball_compatible(p, q, s, r, vertex_set):
         np.square(c) * (np.square(a) + np.square(b) - np.square(c))
     ])
 
+    if np.sum(H_bary) < FLOAT_EPS:
+        return None
+
     H_bary = H_bary / np.sum(H_bary)
     H = H_bary[0] * A + H_bary[1] * B + H_bary[2] * C
     n = np.cross(A - B, A - C)
@@ -49,7 +52,10 @@ def ball_compatible(p, q, s, r, vertex_set):
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    if len(vertex_set.radius_search(O, r - FLOAT_EPS)[0]) == 0:
+    if sorted_tuple(p, q, s) == (0, 1, 2):
+        print vertex_set.neighbor_search(O, 8)
+
+    if len(vertex_set.radius_search(O, r)[0]) == 0:
         return O
     else:
         return None
@@ -105,7 +111,7 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
         if o is None:
             continue
         theta = np.arccos(np.dot(m - O, m - o) / np.linalg.norm(m - O) / np.linalg.norm(m - o))
-        if theta < theta_min and abs(theta) > FLOAT_EPS:
+        if theta < theta_min:# and abs(theta) > FLOAT_EPS:
             candidate = v
             theta_min = theta
     return candidate
@@ -129,6 +135,7 @@ def pivot_ball(vertex_set, radius):
 
     while len(edge_front) > 0:
         i, j = edge_front.pop()
+        print 'Processing edge: {}, {}'.format(i, j)
         if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[(i, j)]) == 2:
             continue
 

@@ -68,16 +68,17 @@ def get_vertex_normals(plydata, vertices=None):
     vertex_normals = np.zeros_like(vertices)
     faces = get_faces(plydata)
 
-    A = vertices[faces[:, 0], :]
-    B = vertices[faces[:, 1], :]
-    C = vertices[faces[:, 2], :]
+    for i in xrange(faces.shape[0]):
+        A = vertices[faces[i, 0], :]
+        B = vertices[faces[i, 1], :]
+        C = vertices[faces[i, 2], :]
 
-    normals = -np.cross(A - B, A - C)
-    normals = normals / np.linalg.norm(normals, axis=1, keepdims=True)
+        normals = np.cross(A - B, A - C)
+        normals = normals / np.linalg.norm(normals)
 
-    vertex_normals[faces[:, 0], :] += normals
-    vertex_normals[faces[:, 1], :] += normals
-    vertex_normals[faces[:, 2], :] += normals
+        vertex_normals[faces[i, 0], :] += normals
+        vertex_normals[faces[i, 1], :] += normals
+        vertex_normals[faces[i, 2], :] += normals
 
     norms = np.linalg.norm(vertex_normals, axis=1, keepdims=True)
     norms[norms == 0] = 1
