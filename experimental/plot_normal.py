@@ -51,7 +51,10 @@ if __name__ == '__main__':
     normals = get_vertex_normals(plydata)
     total_data = get_vertices(plydata)
 
-    sample_indices = np.random.randint(0, total_data.shape[0], 3000)
+    # print normals
+
+    sample_indices = np.random.randint(0, total_data.shape[0], 1000)
+    # sample_indices = np.arange(0, total_data.shape[0])
 
     point_matrix_sampled = total_data[
         sample_indices,
@@ -72,21 +75,21 @@ if __name__ == '__main__':
         c='#FF5F29', marker='.'
     )
 
-    # ax.scatter(
-    #     increased[:, 0],
-    #     increased[:, 2],
-    #     increased[:, 1],
-    #     c='#40FF00', marker='.', alpha=0.5
-    # )
+    ax.scatter(
+        increased[:, 0],
+        increased[:, 2],
+        increased[:, 1],
+        c='#40FF00', marker='.', alpha=0.5
+    )
 
-    # lines = []
-    # for i in xrange(point_matrix_sampled.shape[0]):
-    #     start = point_matrix_sampled[i]
-    #     end = increased[i]
-    #     ax.plot(
-    #         [start[0], end[0]], [start[2], end[2]], [start[1], end[1]],
-    #         c='#1CA7D6', alpha=0.5
-    #     )
+    lines = []
+    for i in xrange(point_matrix_sampled.shape[0]):
+        start = point_matrix_sampled[i]
+        end = increased[i]
+        ax.plot(
+            [start[0], end[0]], [start[2], end[2]], [start[1], end[1]],
+            c='#1CA7D6', alpha=0.5
+        )
 
     ax.axis('off')
     ax.set_axis_bgcolor((0, 0, 0))

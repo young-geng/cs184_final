@@ -49,7 +49,7 @@ def ball_compatible(p, q, s, r, vertex_set):
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    if len(vertex_set.radius_search(O, np.linalg.norm(O - A) - FLOAT_EPS)[0]) == 0:
+    if len(vertex_set.radius_search(O, r - FLOAT_EPS)[0]) == 0:
         return O
     else:
         return None
@@ -105,7 +105,7 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
         if o is None:
             continue
         theta = np.arccos(np.dot(m - O, m - o) / np.linalg.norm(m - O) / np.linalg.norm(m - o))
-        if theta < theta_min:
+        if theta < theta_min and abs(theta) > FLOAT_EPS:
             candidate = v
             theta_min = theta
     return candidate
