@@ -74,6 +74,7 @@ def ball_compatible(p, q, s, r, vertex_set):
 def seed_triangle(radius, vertex_set):
 
     for p, _ in enumerate(vertex_set):
+        print 'trying vertex {} / {}'.format(p, len(vertex_set))
         neighbor_indices, _ = vertex_set.radius_search(vertex_set[p], radius * 2, 20)
 
         for j in xrange(len(neighbor_indices)):
@@ -105,6 +106,12 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
     O = ball_compatible(p, q, s, radius, vertex_set)
     A = vertex_set[i]
     B = vertex_set[j]
+    k = (set([p, q, s]) - set([i ,j])).pop()
+    C = vertex_set[k]
+    na = vertex_set.normals[i]
+    if np.dot(np.cross(B - A, A - C), na) < 0:
+        A, B = B, A
+
     m = (A + B) / 2
     new_radius = np.linalg.norm(m - O) + radius
     theta_min = 2 * np.pi
@@ -115,6 +122,13 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
             continue
         if mesh.is_face(v, i, j):
             continue
+
+        # if mesh.is_edge(v, i) and mesh.faces_of_edge[sorted_tuple(v, i)] >= 2:
+        #     continue
+        #
+        # if mesh.is_edge(v, j) and mesh.faces_of_edge[sorted_tuple(v, j)] >= 2:
+        #     continue
+
         if is_inner_vertex(v, mesh, edge_front):
             continue
         o = ball_compatible(v, i, j, radius, vertex_set)
@@ -134,7 +148,7 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
 
 def pivot_ball(vertex_set, radius):
     s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
-    print s0, s1, s2
+    #print s0, s1, s2
     mesh = Mesh()
     mesh.add_vertex(s0, s1, s2)
     mesh.add_edge(s0, s1, s1, s2, s0, s2)

@@ -91,6 +91,15 @@ def write_collada(vertices, normals, triangle_indices, fname):
     normals = np.array(normals)
     triangle_indices = np.array(triangle_indices, dtype=np.int32)
 
+
+    for i in xrange(triangle_indices.shape[0]):
+        k1, k2, k3 = triangle_indices[i, :]
+        x, y, z = vertices[k1], vertices[k2], vertices[k3]
+        nx = normals[k1]
+        if np.dot(np.cross(y - x, x - z), nx) < 0:
+            triangle_indices[i, :] = np.array([k3, k2, k1], dtype=np.int32)
+
+
     assert len(vertices.shape) == 2 and vertices.shape[1] == 3
     assert vertices.shape == normals.shape
     assert len(triangle_indices.shape) == 2 and triangle_indices.shape[1] == 3
