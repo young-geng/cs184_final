@@ -6,7 +6,7 @@ from mesh2 import *
 
 FLOAT_EPS = np.finfo(np.float32).eps
 
-def ball_compatible(p, q, s, r, vertex_set):
+def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
 
     p, q, s = sorted_tuple(p, q, s)
 
@@ -57,7 +57,9 @@ def ball_compatible(p, q, s, r, vertex_set):
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    #print p, q, s, len(vertex_set.radius_search(O, r-FLOAT_EPS)[0]), "here!"
+    #print p, q, s, len(vertex_set.radius_search(O, r-FLOAT_EPS)[0]), "here!"]
+    if not check_empty:
+        return O
 
     s = set(vertex_set.radius_search(O, r)[0]) - set([p, q, s])
     if len(s) == 0:
@@ -104,7 +106,7 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
 
     t = sorted_tuple(i, j)
     p, q, s = mesh.faces_of_edge[t][0]
-    O = ball_compatible(p, q, s, radius, vertex_set)
+    O = ball_compatible(p, q, s, radius, vertex_set, check_empty=False)
     A = vertex_set[i]
     B = vertex_set[j]
     k = (set([p, q, s]) - set([i ,j])).pop()
@@ -124,11 +126,19 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
         if mesh.is_face(v, i, j):
             continue
 
-        # if mesh.is_edge(v, i) and mesh.faces_of_edge[sorted_tuple(v, i)] >= 2:
+        # if mesh.is_edge(v, i) and len(mesh.faces_of_edge[sorted_tuple(v, i)]) >= 2:
         #     continue
         #
-        # if mesh.is_edge(v, j) and mesh.faces_of_edge[sorted_tuple(v, j)] >= 2:
+        # if mesh.is_edge(v, j) and len(mesh.faces_of_edge[sorted_tuple(v, j)]) >= 2:
         #     continue
+        skip = False
+        if mesh.is_vertex(v):
+            for edge in mesh.edges_of_vertex[v]:
+                if len(mesh.faces_of_edge[edge]) >= 2:
+                    skip = True
+                    break
+            if skip:
+                continue
 
         if is_inner_vertex(v, mesh, edge_front):
             continue
@@ -146,22 +156,7 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
             theta_min = theta
     return candidate
 
-
-def pivot_ball(vertex_set, radius):
-    s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
-    #print s0, s1, s2
-    mesh = Mesh()
-    mesh.add_vertex(s0, s1, s2)
-    mesh.add_edge(s0, s1, s1, s2, s0, s2)
-    mesh.add_face(s0, s1, s2)
-
-    edge_front = [
-        sorted_tuple(s0, s1),
-        sorted_tuple(s1, s2),
-        sorted_tuple(s0, s2)
-    ]
-
-    total_faces = 0
+def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
 
     while len(edge_front) > 0:
         i, j = edge_front.pop(0)
@@ -191,5 +186,31 @@ def pivot_ball(vertex_set, radius):
 
         if len(mesh.faces_of_edge[et]) != 2:
             edge_front.append(et)
+
+    return mesh, total_faces
+
+def pivot_ball(vertex_set, radius, num_passes=1):
+    s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
+    #print s0, s1, s2
+    mesh = Mesh()
+    mesh.add_vertex(s0, s1, s2)
+    mesh.add_edge(s0, s1, s1, s2, s0, s2)
+    mesh.add_face(s0, s1, s2)
+
+    edge_front = [
+        sorted_tuple(s0, s1),
+        sorted_tuple(s1, s2),
+        sorted_tuple(s0, s2)
+    ]
+
+    total_faces = 0
+
+    mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
+
+    for i in xrange(num_passes - 1):
+        radius *= 1.25
+        edge_front = mesh.boundary_edges.keys()
+        mesh.clear_boundary_edges()
+        mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
 
     return mesh
