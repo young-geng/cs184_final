@@ -73,7 +73,8 @@ def ball_compatible(p, q, s, r, vertex_set):
 
 def seed_triangle(radius, vertex_set):
 
-    for p, _ in enumerate(vertex_set):
+    rand_indices = np.random.permutation(range(len(vertex_set)))
+    for p in rand_indices:
         print 'trying vertex {} / {}'.format(p, len(vertex_set))
         neighbor_indices, _ = vertex_set.radius_search(vertex_set[p], radius * 2, 20)
 

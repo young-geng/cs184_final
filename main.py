@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 
 from plyfile import PlyData, PlyElement
@@ -8,16 +10,25 @@ from ball_pivot import *
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--radius', '-r', required=True, type=float, help='radius'
+    )
 
-    plydata = PlyData.read('data/bunny.ply')
+    parser.add_argument(
+        'input', metavar='INPUT', type=str, nargs=1,
+        help='input file'
+    )
 
-    # normals = get_vertex_normals(plydata)
-    # vertices = get_vertices(plydata)
+    parser.add_argument(
+        'output', metavar='OUTPUT', type=str, nargs=1,
+        help='output file'
+    )
+    args = parser.parse_args()
 
-    # sample_indices = np.random.randint(0, vertices.shape[0], 1000)
+    plydata = PlyData.read(args.input[0])
 
-    # vs = VertexSet(vertices[sample_indices, :], normals[sample_indices, :])
     vs = build_vertex_set_ply(plydata)
 
-    mesh = pivot_ball(vs, 0.03)
-    write_collada(vs.vertices, vs.normals, np.array(mesh.faces.keys()), 'temp/bunny2.dae')
+    mesh = pivot_ball(vs, args.radius)
+    write_collada(vs.vertices, vs.normals, np.array(mesh.faces.keys()), args.output[0])
