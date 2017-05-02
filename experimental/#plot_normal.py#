@@ -31,19 +31,6 @@ def get_vertex_normals(plydata, vertices=None):
         A = vertices[faces[i, 0], :]
         B = vertices[faces[i, 1], :]
         C = vertices[faces[i, 2], :]
-<<<<<<< HEAD
-        
-        normals = -np.cross(A - B, A - C)
-        #print normals
-        #print faces
-        normals = normals / np.linalg.norm(normals)#, axis=1, keepdims=True)
-        
-        vertex_normals[faces[i, 0], :] += normals
-        vertex_normals[faces[i, 1], :] += normals
-        vertex_normals[faces[i, 2], :] += normals
-
-        #print vertex_normals
-=======
 
         normals = np.cross(A - B, A - C)
         normals = normals / np.linalg.norm(normals)
@@ -51,7 +38,6 @@ def get_vertex_normals(plydata, vertices=None):
         vertex_normals[faces[i, 0], :] += normals
         vertex_normals[faces[i, 1], :] += normals
         vertex_normals[faces[i, 2], :] += normals
->>>>>>> 78d872129a0b5885628a78a375659afcac35fae1
 
     norms = np.linalg.norm(vertex_normals, axis=1, keepdims=True)
     norms[norms == 0] = 1
@@ -62,21 +48,13 @@ def get_vertex_normals(plydata, vertices=None):
 
 if __name__ == '__main__':
 
-<<<<<<< HEAD
-    plydata = PlyData.read('cube.ply')
-=======
     plydata = PlyData.read('data/cube_good.ply')
->>>>>>> 78d872129a0b5885628a78a375659afcac35fae1
     normals = get_vertex_normals(plydata)
     total_data = get_vertices(plydata)
 
     print normals
 
-<<<<<<< HEAD
-    #sample_indices = np.random.randint(0, total_data.shape[0], 3000)
-=======
     # sample_indices = np.random.randint(0, total_data.shape[0], 1000)
->>>>>>> 78d872129a0b5885628a78a375659afcac35fae1
     sample_indices = np.arange(0, total_data.shape[0])
 
     point_matrix_sampled = total_data[
@@ -84,11 +62,7 @@ if __name__ == '__main__':
         :
     ]
 
-<<<<<<< HEAD
-    increased = 0.1 * normals[
-=======
     increased = 0.3 * normals[
->>>>>>> 78d872129a0b5885628a78a375659afcac35fae1
         sample_indices,
         :
     ] + point_matrix_sampled
@@ -109,23 +83,6 @@ if __name__ == '__main__':
         c='#40FF00', marker='.', alpha=0.5
     )
 
-<<<<<<< HEAD
-    ax.scatter(
-         increased[:, 0],
-         increased[:, 2],
-         increased[:, 1],
-         c='#40FF00', marker='.', alpha=0.5
-    )
-
-    lines = []
-    for i in xrange(point_matrix_sampled.shape[0]):
-         start = point_matrix_sampled[i]
-         end = increased[i]
-         ax.plot(
-             [start[0], end[0]], [start[2], end[2]], [start[1], end[1]],
-             c='#1CA7D6', alpha=0.5
-         )
-=======
     lines = []
     for i in xrange(point_matrix_sampled.shape[0]):
         start = point_matrix_sampled[i]
@@ -134,7 +91,6 @@ if __name__ == '__main__':
             [start[0], end[0]], [start[2], end[2]], [start[1], end[1]],
             c='#1CA7D6', alpha=0.5
         )
->>>>>>> 78d872129a0b5885628a78a375659afcac35fae1
 
     ax.axis('off')
     ax.set_axis_bgcolor((0, 0, 0))
