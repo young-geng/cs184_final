@@ -105,6 +105,11 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
     O = ball_compatible(p, q, s, radius, vertex_set)
     A = vertex_set[i]
     B = vertex_set[j]
+    k = (set([p, q, s]) - set([i, j])).pop()
+    C = vertex_set[k]
+    na = vertex_set.normals[i]
+    nb = vertex_set.normals[j]
+    nc = vertex_set.normals[k]
     m = (A + B) / 2
     new_radius = np.linalg.norm(m - O) + radius
     theta_min = 2 * np.pi
@@ -131,6 +136,36 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
             theta_min = theta
     return candidate
 
+def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
+
+    while len(edge_front) > 0:
+        i, j = edge_front.pop(0)
+        print 'Processing edge: {}, {}'.format(i, j)
+        if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[sorted_tuple(i, j)]) == 2:
+            continue
+
+        v = find_candidate(i, j, vertex_set, radius, mesh, edge_front)
+
+        if v is None:
+            mesh.set_boundary(i, j)
+            continue
+
+        mesh.add_vertex(v)
+        mesh.add_edge(i, v, j, v)
+        mesh.add_face(i, j, v)
+        total_faces += 1
+        print 'Faces: {}, [{}, {}, {}]'.format(total_faces, i, j, v)
+
+        es = sorted_tuple(i, v)
+        et = sorted_tuple(j, v)
+
+        if len(mesh.faces_of_edge[es]) != 2:
+            edge_front.append(es)
+
+        if len(mesh.faces_of_edge[et]) != 2:
+            edge_front.append(et)
+
+    return mesh, total_faces
 
 def pivot_ball(vertex_set, radius):
     s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
@@ -148,33 +183,11 @@ def pivot_ball(vertex_set, radius):
 
     total_faces = 0
 
-    while len(edge_front) > 0:
-        i, j = edge_front.pop(0)
-        print 'Processing edge: {}, {}'.format(i, j)
-        if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[sorted_tuple(i, j)]) == 2:
-            continue
+    mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
 
-        v = find_candidate(i, j, vertex_set, radius, mesh, edge_front)
-
-        if v is None:
-            mesh.set_boundary(i, j)
-            continue
-
-        # import pdb; pdb.set_trace()
-
-        mesh.add_vertex(v)
-        mesh.add_edge(i, v, j, v)
-        mesh.add_face(i, j, v)
-        total_faces += 1
-        print 'Faces: {}, [{}, {}, {}]'.format(total_faces, i, j, v)
-
-        es = sorted_tuple(i, v)
-        et = sorted_tuple(j, v)
-
-        if len(mesh.faces_of_edge[es]) != 2:
-            edge_front.append(es)
-
-        if len(mesh.faces_of_edge[et]) != 2:
-            edge_front.append(et)
+    while len(mesh.boundary_edges) != 0:
+        radius *= 1.25
+        edge_front = mesh.boundary_edges.keys()
+        mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
 
     return mesh
