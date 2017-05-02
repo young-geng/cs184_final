@@ -11,8 +11,8 @@ class VertexSet(object):
 
     def __init__(self, vertices, normals):
         assert vertices.shape == normals.shape
-        self._vertices = vertices
-        self._normals = normals
+        self._vertices = vertices.astype(np.float64)
+        self._normals = normals.astype(np.float64)
 
         self.flann = pyflann.FLANN()
         self.flann_index = self.flann.build_index(
@@ -54,7 +54,7 @@ def get_vertices(plydata):
         [plydata.elements[0].data['x'].reshape(-1, 1),
          plydata.elements[0].data['y'].reshape(-1, 1),
          plydata.elements[0].data['z'].reshape(-1, 1)],
-    )
+    ).astype(np.float64)
 
 
 def get_faces(plydata):
