@@ -106,6 +106,9 @@ class Mesh(object):
         assert t in self.edges
         self.boundary_edges[t] = None
 
+    def clear_boundary_edges(self):
+        self._boundary_edges = {}
+
     @property
     def vertices(self):
         return self._vertices
