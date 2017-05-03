@@ -239,8 +239,8 @@ def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
 
     return mesh, total_faces
 
-def pivot_ball(vertex_set, radius, num_passes=1):
-    s0, s1, s2 = tuple(seed_triangle(radius, vertex_set))
+def pivot_ball(vertex_set, radii):
+    s0, s1, s2 = tuple(seed_triangle(radii[0], vertex_set))
     #print s0, s1, s2
     mesh = Mesh()
     mesh.add_vertex(s0, s1, s2)
@@ -255,12 +255,11 @@ def pivot_ball(vertex_set, radius, num_passes=1):
 
     total_faces = 0
 
-    mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
+    # mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
 
-    for i in xrange(num_passes - 1):
-        radius *= 1.25
-        edge_front = mesh.boundary_edges.keys()
+    for radius in radii:
         mesh.clear_boundary_edges()
         mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
+        edge_front = mesh.boundary_edges.keys()
 
     return mesh
