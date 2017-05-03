@@ -5,6 +5,7 @@ from utils import *
 from mesh2 import *
 
 FLOAT_EPS = np.finfo(np.float32).eps
+BALL_EPS = 1e-4
 
 
 def normalize_vector(v):
@@ -70,7 +71,7 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
         return O
 
     distances = vertex_set.radius_search(O, r)[1]
-    if len(distances) == 0 or abs(r - np.sqrt(np.min(distances))) < FLOAT_EPS:
+    if len(distances) == 0 or r - np.sqrt(np.min(distances)) < BALL_EPS:
         return O
     else:
         return None
@@ -122,9 +123,27 @@ def calculate_theta(A, B, C, nA, nB, nC, old_O, new_O):
         normal_OAB = -normal_OAB
 
     if np.dot(normal_OAB, new_O - m) < 0:
-        return 2 * np.pi - raw_theta
-    return raw_theta
+        theta = 2 * np.pi - raw_theta
+    else:
+        theta = raw_theta
 
+    return theta
+
+def intersect(vertex_set, e1, e2):
+
+    v1 = vertex_set[e1[0]]
+    v2 = vertex_set[e1[1]]
+    u1 = vertex_set[e2[0]]
+    u2 = vertex_set[e2[1]]
+    fn = np.cross(u1 - v1, u2 - v1)
+    if abs(np.dot(fn, v2 - v1)) > FLOAT_EPS:
+        return False
+    a1 = np.arccos(np.clip(np.dot(u2 - v1, v2 - v1)/ np.linalg.norm(u2 - v1) / np.linalg.norm(v2 - v1), -1, 1))
+    a2 = np.arccos(np.clip(np.dot(u1 - v1, v2 - v1)/ np.linalg.norm(u1 - v1) / np.linalg.norm(v2 - v1), -1, 1))
+    a = np.arccos(np.clip(np.dot(u2 - v1, u1 - v1)/ np.linalg.norm(u2 - v1) / np.linalg.norm(u1 - v1), -1, 1))
+    if abs(a - (a1 + a2)) <= FLOAT_EPS:
+        return True
+    return False
 
 def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
 
@@ -154,10 +173,24 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
         if mesh.is_face(v, i, j):
             continue
 
-        if mesh.is_edge(v, i) and len(mesh.faces_of_edge[sorted_tuple(v, i)]) >= 2:
-            continue
+        #if mesh.is_edge(v, i) and len(mesh.faces_of_edge[sorted_tuple(v, i)]) >= 2:
+        #    continue
         
-        if mesh.is_edge(v, j) and len(mesh.faces_of_edge[sorted_tuple(v, j)]) >= 2:
+        #if mesh.is_edge(v, j) and len(mesh.faces_of_edge[sorted_tuple(v, j)]) >= 2:
+        #    continue
+
+        skip = False
+        for edge in mesh.edges_of_vertex[i]:
+            if not v in edge and not j in edge:
+                if intersect(vertex_set, sorted_tuple(v, j), edge):
+                    skip = True
+                    break
+        for edge in mesh.edges_of_vertex[j]:
+            if not v in edge and not i in edge:
+                if intersect(vertex_set, sorted_tuple(v, i), edge):
+                    skip = True
+                    break
+        if skip:
             continue
 
         if is_inner_vertex(v, mesh, edge_front):

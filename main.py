@@ -1,6 +1,8 @@
 import argparse
 
 import numpy as np
+import random
+import time
 
 from plyfile import PlyData, PlyElement
 
@@ -11,6 +13,11 @@ from ball_pivot import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--seed', '-s', default=int(time.time()), type=int,
+        help='random seed'
+    )
+
     parser.add_argument(
         '--radius', '-r', required=True, type=float, nargs='+',
         help='radius'
@@ -26,6 +33,9 @@ if __name__ == '__main__':
         help='output file'
     )
     args = parser.parse_args()
+
+    np.random.seed(args.seed)
+    random.seed(args.seed)
 
     plydata = PlyData.read(args.input)
 
