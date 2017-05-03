@@ -5,6 +5,7 @@ from utils import *
 from mesh2 import *
 
 FLOAT_EPS = np.finfo(np.float32).eps
+BALL_EPS = 1e-4
 
 
 def normalize_vector(v):
@@ -70,7 +71,7 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
         return O
 
     distances = vertex_set.radius_search(O, r)[1]
-    if len(distances) == 0 or r - np.sqrt(np.min(distances)) < FLOAT_EPS:
+    if len(distances) == 0 or r - np.sqrt(np.min(distances)) < BALL_EPS:
         return O
     else:
         return None
@@ -122,8 +123,11 @@ def calculate_theta(A, B, C, nA, nB, nC, old_O, new_O):
         normal_OAB = -normal_OAB
 
     if np.dot(normal_OAB, new_O - m) < 0:
-        return 2 * np.pi - raw_theta
-    return raw_theta
+        theta = 2 * np.pi - raw_theta
+    else:
+        theta = raw_theta
+
+    return theta
 
 
 def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
