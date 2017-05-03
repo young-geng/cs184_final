@@ -57,19 +57,11 @@ def ball_compatible(p, q, s, r, vertex_set):
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    #print p, q, s, len(vertex_set.radius_search(O, r-FLOAT_EPS)[0]), "here!"
-
     s = set(vertex_set.radius_search(O, r)[0]) - set([p, q, s])
     if len(s) == 0:
         return O
     else:
         return None
-
-    #if len(vertex_set.radius_search(O, r)[0]) == 3:
-    #    return O
-    #else:
-    #    return None
-
 
 def seed_triangle(radius, vertex_set):
 
@@ -108,8 +100,10 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
     k = (set([p, q, s]) - set([i, j])).pop()
     C = vertex_set[k]
     na = vertex_set.normals[i]
-    nb = vertex_set.normals[j]
-    nc = vertex_set.normals[k]
+
+    if np.dot(np.cross(B - A, A - C), na) < 0:
+        A, B = B, A
+
     m = (A + B) / 2
     new_radius = np.linalg.norm(m - O) + radius
     theta_min = 2 * np.pi
@@ -185,9 +179,10 @@ def pivot_ball(vertex_set, radius):
 
     mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
 
-    while len(mesh.boundary_edges) != 0:
-        radius *= 1.25
-        edge_front = mesh.boundary_edges.keys()
-        mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
+#    while len(mesh.boundary_edges) != 0:
+#        radius *= 1.25
+#        print "Radius: {}".format(radius)
+#        edge_front = mesh.boundary_edges.keys()
+#        mesh, total_faces = generate_mesh(mesh, edge_front, radius, vertex_set, total_faces)
 
     return mesh
