@@ -70,7 +70,7 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
         return O
 
     distances = vertex_set.radius_search(O, r)[1]
-    if len(distances) == 0 or r - np.sqrt(np.min(distances)) < FLOAT_EPS:
+    if len(distances) == 0 or abs(r - np.sqrt(np.min(distances))) < FLOAT_EPS:
         return O
     else:
         return None
@@ -154,19 +154,11 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
         if mesh.is_face(v, i, j):
             continue
 
-        # if mesh.is_edge(v, i) and len(mesh.faces_of_edge[sorted_tuple(v, i)]) >= 2:
-        #     continue
-        #
-        # if mesh.is_edge(v, j) and len(mesh.faces_of_edge[sorted_tuple(v, j)]) >= 2:
-        #     continue
-        # skip = False
-        # if mesh.is_vertex(v):
-        #     for edge in mesh.edges_of_vertex[v]:
-        #         if len(mesh.faces_of_edge[edge]) >= 2:
-        #             skip = True
-        #             break
-        #     if skip:
-        #         continue
+        if mesh.is_edge(v, i) and len(mesh.faces_of_edge[sorted_tuple(v, i)]) >= 2:
+            continue
+        
+        if mesh.is_edge(v, j) and len(mesh.faces_of_edge[sorted_tuple(v, j)]) >= 2:
+            continue
 
         if is_inner_vertex(v, mesh, edge_front):
             continue
@@ -211,7 +203,7 @@ def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
         # if sorted_tuple(i, j) == (181, 210) or sorted_tuple(i, j) == (181, 211) or sorted_tuple(i, j) == (210, 211):
         #     import pdb; pdb.set_trace()
 
-        if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[sorted_tuple(i, j)]) == 2:
+        if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[sorted_tuple(i, j)]) >= 2:
             continue
 
         v = find_candidate(i, j, vertex_set, radius, mesh, edge_front)
