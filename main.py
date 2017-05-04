@@ -42,4 +42,7 @@ if __name__ == '__main__':
     vs = build_vertex_set_ply(plydata)
 
     mesh = pivot_ball(vs, args.radius)
-    write_collada(vs.vertices, vs.normals, np.array(mesh.faces.keys()), args.output)
+    if mesh is None:
+        print 'Cannot find seed triangle. Reconstruction failed!'
+    else:
+        write_collada(vs.vertices, vs.normals, np.array(mesh.faces.keys()), args.output)

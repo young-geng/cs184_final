@@ -259,7 +259,10 @@ def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
     return mesh, total_faces
 
 def pivot_ball(vertex_set, radii):
-    s0, s1, s2 = tuple(seed_triangle(radii[0], vertex_set))
+    seed = seed_triangle(radii[0], vertex_set)
+    if seed is None:
+        return None
+    s0, s1, s2 = seed
     mesh = Mesh()
     mesh.add_vertex(s0, s1, s2)
     mesh.add_edge(s0, s1, s1, s2, s0, s2)
