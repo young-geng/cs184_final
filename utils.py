@@ -16,7 +16,7 @@ class VertexSet(object):
 
         self.flann = pyflann.FLANN()
         self.flann_index = self.flann.build_index(
-            vertices, algorithm="kdtree", target_precision=1, checks=32
+            vertices, algorithm='kdtree_simple', target_precision=1, checks=1024
         )
 
     def neighbor_search(self, p, k, max_results=32):

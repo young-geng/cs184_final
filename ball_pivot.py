@@ -169,18 +169,13 @@ def find_candidate(i, j, vertex_set, radius, mesh, edge_front):
     theta_min = 2 * np.pi
     idx, dis = vertex_set.radius_search(m, new_radius)
     candidate = None
+
     for v in idx:
 
         if v == i or v == j:
             continue
         if mesh.is_face(v, i, j):
             continue
-
-        #if mesh.is_edge(v, i) and len(mesh.faces_of_edge[sorted_tuple(v, i)]) >= 2:
-        #    continue
-        
-        #if mesh.is_edge(v, j) and len(mesh.faces_of_edge[sorted_tuple(v, j)]) >= 2:
-        #    continue
 
         skip = False
         for edge in mesh.edges_of_vertex[i]:
@@ -236,9 +231,6 @@ def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
         i, j = edge_front.pop(0)
         #print 'Processing edge: {}, {}'.format(i, j)
 
-        # if sorted_tuple(i, j) == (181, 210) or sorted_tuple(i, j) == (181, 211) or sorted_tuple(i, j) == (210, 211):
-        #     import pdb; pdb.set_trace()
-
         if mesh.is_boundary(i, j) or len(mesh.faces_of_edge[sorted_tuple(i, j)]) >= 2:
             continue
 
@@ -247,8 +239,6 @@ def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
         if v is None:
             mesh.set_boundary(i, j)
             continue
-
-        # import pdb; pdb.set_trace()
 
         mesh.add_vertex(v)
         mesh.add_edge(i, v, j, v)
@@ -269,7 +259,6 @@ def generate_mesh(mesh, edge_front, radius, vertex_set, total_faces):
 
 def pivot_ball(vertex_set, radii):
     s0, s1, s2 = tuple(seed_triangle(radii[0], vertex_set))
-    #print s0, s1, s2
     mesh = Mesh()
     mesh.add_vertex(s0, s1, s2)
     mesh.add_edge(s0, s1, s1, s2, s0, s2)

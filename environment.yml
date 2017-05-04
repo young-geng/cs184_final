@@ -1,6 +1,6 @@
 name: p2mpy
 channels:
-    - https://conda.anaconda.org/menpo
+    - https://conda.anaconda.org/dougal
 dependencies:
     - python
     - numpy
@@ -10,11 +10,10 @@ dependencies:
     - matplotlib
     - scikit-learn
     - opencv
-    - flann=1.8.4
+    - flann=1.9.1
     - pip:
         - Cython
         - scikit-image
         - plyfile
-        - MeshPy
         - pyflann
         - pycollada
