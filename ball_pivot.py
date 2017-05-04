@@ -141,7 +141,10 @@ def intersect(vertex_set, e1, e2):
     a1 = np.arccos(np.clip(np.dot(u2 - v1, v2 - v1)/ np.linalg.norm(u2 - v1) / np.linalg.norm(v2 - v1), -1, 1))
     a2 = np.arccos(np.clip(np.dot(u1 - v1, v2 - v1)/ np.linalg.norm(u1 - v1) / np.linalg.norm(v2 - v1), -1, 1))
     a = np.arccos(np.clip(np.dot(u2 - v1, u1 - v1)/ np.linalg.norm(u2 - v1) / np.linalg.norm(u1 - v1), -1, 1))
-    if abs(a - (a1 + a2)) <= FLOAT_EPS:
+    b1 = np.arccos(np.clip(np.dot(v2 - u1, u2 - u1)/ np.linalg.norm(v2 - u1) / np.linalg.norm(u2 - u1), -1, 1))
+    b2 = np.arccos(np.clip(np.dot(v1 - u1, u2 - u1)/ np.linalg.norm(v1 - u1) / np.linalg.norm(u2 - u1), -1, 1))
+    b = np.arccos(np.clip(np.dot(v2 - u1, v1 - u1)/ np.linalg.norm(v2 - u1) / np.linalg.norm(v1 - u1), -1, 1))
+    if abs(a - (a1 + a2)) <= FLOAT_EPS and abs(b - (b1 + b2)) <= FLOAT_EPS:
         return True
     return False
 
