@@ -5,6 +5,7 @@ from utils import *
 from mesh2 import *
 
 FLOAT_EPS = np.finfo(np.float32).eps
+DOUBLE_EPS = np.finfo(np.float64).eps
 BALL_EPS = 1e-4
 
 
@@ -23,9 +24,9 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
     B = vertex_set[q]
     C = vertex_set[s]
 
-    if np.linalg.norm(A - B) < np.finfo(float).eps \
-       or np.linalg.norm(A - C) < np.finfo(float).eps \
-       or np.linalg.norm(B - C) < np.finfo(float).eps:
+    if np.linalg.norm(A - B) < FLOAT_EPS \
+       or np.linalg.norm(A - C) < FLOAT_EPS \
+       or np.linalg.norm(B - C) < FLOAT_EPS:
 
        return None
 
@@ -51,7 +52,7 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
         np.square(c) * (np.square(a) + np.square(b) - np.square(c))
     ])
 
-    if np.sum(H_bary) < FLOAT_EPS:
+    if np.abs(np.sum(H_bary)) < 100 * DOUBLE_EPS:
         return None
 
     H_bary = H_bary / np.sum(H_bary)
@@ -66,7 +67,6 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
 
     O = H + np.sqrt(np.square(r) - rc2) * n
 
-    #print p, q, s, len(vertex_set.radius_search(O, r-FLOAT_EPS)[0]), "here!"]
     if not check_empty:
         return O
 
@@ -79,9 +79,10 @@ def ball_compatible(p, q, s, r, vertex_set, check_empty=True):
 
 def seed_triangle(radius, vertex_set):
     rand_indices = np.random.permutation(range(len(vertex_set)))
-    for p in rand_indices:
-        print 'trying vertex {} / {}'.format(p, len(vertex_set))
-        neighbor_indices, _ = vertex_set.radius_search(vertex_set[p], radius * 2, 20)
+    for idx, p in enumerate(rand_indices):
+        if idx % 50 == 0:
+            print 'trying vertex {}, tried {} / {}'.format(p, idx, len(vertex_set))
+        neighbor_indices, _ = vertex_set.radius_search(vertex_set[p], radius * 2, 1024)
 
         for j in xrange(len(neighbor_indices)):
             if neighbor_indices[j] == p:
