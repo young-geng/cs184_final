@@ -96,6 +96,6 @@ temp/
 
 \#*\#
 
-run.sh
+run*.sh
 
 .c9/
