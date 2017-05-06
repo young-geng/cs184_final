@@ -43,8 +43,10 @@ class VertexSet(object):
         return iter(self.vertices)
 
 
-def build_vertex_set_ply(plydata):
+def build_vertex_set_ply(plydata, invert_normal=False):
     normals = get_vertex_normals(plydata)
+    if invert_normal:
+        normals = -normals
     vertices = get_vertices(plydata)
     return VertexSet(vertices, normals)
 

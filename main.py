@@ -17,6 +17,11 @@ if __name__ == '__main__':
         '--seed', '-s', default=int(time.time()), type=int,
         help='random seed'
     )
+    
+    parser.add_argument(
+        '--invert_normal', action='store_true', default=False,
+        help='invert the normals from ply file'
+    )
 
     parser.add_argument(
         '--radius', '-r', required=True, type=float, nargs='+',
@@ -39,7 +44,7 @@ if __name__ == '__main__':
 
     plydata = PlyData.read(args.input)
 
-    vs = build_vertex_set_ply(plydata)
+    vs = build_vertex_set_ply(plydata, args.invert_normal)
 
     mesh = pivot_ball(vs, args.radius)
     if mesh is None:
